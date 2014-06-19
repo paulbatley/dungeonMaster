@@ -91,15 +91,9 @@ char DuGame::BoardElementsToChars(BoardElements b) const
 
 void DuGame::startPlaying(char userMove)
 {
-	
-
-	
-	
 		//clears previous move
 		Board[r1][c1] = bempty;
 		Board[rb1][cb1] = bempty;
-
-		
 
 		switch(userMove)
 		{
@@ -138,10 +132,7 @@ void DuGame::startPlaying(char userMove)
 					std::cout << "Enter the correct input" << std::endl;
 			}
 		
-		
-		checkOOB();
-		updateBoard();
-
+	
 		
 		Board[r1][c1] = bplayer;
 		if(level == 4)
@@ -154,7 +145,7 @@ void DuGame::startPlaying(char userMove)
 void DuGame::checkOOB()
 {
 	if(r1 > (ROWS-1))
-		r1 %= ROWS;
+		r1 %=ROWS;
 	else if(c1 > (COLS-1))
 		c1 %=COLS;
 	else if(r1 < 0)
@@ -192,16 +183,14 @@ void DuGame::updateBoard()
 		std::cout<<"You have found the exit!!"<< std::endl;
 		std::cout << "Lives left: " << lives << std::endl;
 		std::cout << "Cash scored: " << cash << std::endl << std::endl;
+		level++;
 	}
 	else if(Board[r1][c1] == bboss)
 	{
 		std::cout <<"Ouch! the boss tagged you"<< std::endl;
 		lives--;
 	}
-	else if(Board[r1][c1] == bexit)
-	{
-		level++;
-	}
+
 	if(Board[rb1][cb1] == bexit)
 	{
 		Board[rb1][cb1] = bempty;
@@ -210,6 +199,8 @@ void DuGame::updateBoard()
 		cb1 = 9;
 		std::cout << "The boss left!!"<< std::endl;
 	}
+	checkOOB();
+	Board[r1][c1] = bplayer;
 }
 
 void DuGame::nextLevel()
@@ -292,9 +283,9 @@ std::ostream & operator<<(std::ostream & os, const DuGame d)
 	std::cout << "Look out for hidden traps!! Level: " << d.level << std::endl << "  ";
 	for(int i = 0;i < COLS;i++)
 			std::cout<<"  " << i;
-	std::cout<<std::endl<< "  ";
-	for(int top = 0;top < COLS;top++)
-			std::cout <<" __";
+	std::cout<<std::endl<< "   ";
+	for(int top = 0;top < (COLS -3);top++)
+			std::cout <<"______";
 	std::cout<<std::endl;
 	for (int rr = 0, i = 0;rr< ROWS; rr++, i++)
 	{
@@ -305,12 +296,13 @@ std::ostream & operator<<(std::ostream & os, const DuGame d)
 		for(int cc = 0;cc < COLS;cc++)
 		{
 			char c = d.BoardElementsToChars(d.Board[rr][cc]);
-			std::cout<<"|_" << c;
+			std::cout<<"|_" << c << "_";
 		}
 		std::cout<< "|" << std::endl;
 	}
 	
 	std::cout << "Cash: "<< d.cash << "  Lives: "<< d.lives << std::endl;
+
 	return os;
 }
 
