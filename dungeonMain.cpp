@@ -12,7 +12,9 @@ int main(void)
 	
 	while(true)
 	{
+		dg.updateBoard();
 		cout << dg;
+		
 		std::cout << "Choose your direction: (w,a,s,d)";
 		std::cin >> userMove;
 		dg.startPlaying(userMove);
