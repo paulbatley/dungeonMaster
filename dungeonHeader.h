@@ -24,24 +24,14 @@ class DuGame
 		void printBoard();
 		void checkOOB();
 		void updateBoard();
-		void startPlaying();
+		void startPlaying(char userMove);
 		void nextLevel();
 		void levels(int levelSelected);
 		void resetBoard();
-		int checkLives()
-		{
-			if(lives == 0)
-				return 1;
-			else
-				return 0;
-		}
-		int checkLevel()
-		{
-			if(level == 5)
-				return 1;
-			else
-				return 0;
-		}
+		friend std::ostream & operator<<(std::ostream & os, const DuGame d);
+		int checkLives();
+		
+		int checkLevel();
 };
 
 #endif
