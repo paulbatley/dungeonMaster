@@ -38,7 +38,7 @@ void DuGame::printBoard()
 	system("cls");
 	std::cout << "Look out for hidden traps!! Level: " << level << std::endl << "  ";
 	for(int i = 0;i < COLS;i++)
-			std::cout<<"  " <<i;
+			std::cout<<"  " << i;
 	std::cout<<std::endl<< "  ";
 	for(int top = 0;top < COLS;top++)
 			std::cout <<" __";
@@ -57,7 +57,7 @@ void DuGame::printBoard()
 		std::cout<< "|" << std::endl;
 	}
 	
-	std::cout << "Cash: "<< DuGame::cash << "  Lives: "<< DuGame::lives << std::endl;
+	std::cout << "Cash: "<< cash << "  Lives: "<<  lives << std::endl;
 }
 
 char DuGame::BoardElementsToChars(BoardElements b) const
@@ -89,20 +89,17 @@ char DuGame::BoardElementsToChars(BoardElements b) const
 	return c;
 }
 
-void DuGame::startPlaying()
+void DuGame::startPlaying(char userMove)
 {
-	char userMove;
 	
-	while(true)
-	{
+
+	
+	
 		//clears previous move
 		Board[r1][c1] = bempty;
 		Board[rb1][cb1] = bempty;
 
 		
-
-		std::cout << "Choose your direction: (w,a,s,d)";
-		std::cin >> userMove;
 
 		switch(userMove)
 		{
@@ -140,26 +137,17 @@ void DuGame::startPlaying()
 				default:
 					std::cout << "Enter the correct input" << std::endl;
 			}
-		}
+		
 		
 		checkOOB();
 		updateBoard();
 
-		if(Board[r1][c1] == bexit)
-		{
-			level++;
-			break;
-		}
-		if(lives == 0)
-		{
-			std::cout << "I'm sorry. You have died"<< std::endl;
-			break;
-		}
 		
 		Board[r1][c1] = bplayer;
 		if(level == 4)
 			Board[rb1][cb1] = bboss;
-		printBoard();
+		
+
 	}
 }
 
@@ -209,6 +197,10 @@ void DuGame::updateBoard()
 	{
 		std::cout <<"Ouch! the boss tagged you"<< std::endl;
 		lives--;
+	}
+	else if(Board[r1][c1] == bexit)
+	{
+		level++;
 	}
 	if(Board[rb1][cb1] == bexit)
 	{
@@ -292,4 +284,51 @@ void DuGame::resetBoard()
 	else
 		Board[ROWS-1][COLS-1] = bexit;
 
+}
+
+std::ostream & operator<<(std::ostream & os, const DuGame d)
+{
+	system("cls");
+	std::cout << "Look out for hidden traps!! Level: " << d.level << std::endl << "  ";
+	for(int i = 0;i < COLS;i++)
+			std::cout<<"  " << i;
+	std::cout<<std::endl<< "  ";
+	for(int top = 0;top < COLS;top++)
+			std::cout <<" __";
+	std::cout<<std::endl;
+	for (int rr = 0, i = 0;rr< ROWS; rr++, i++)
+	{
+		if(i<10)
+			std::cout << " "<< i << " ";
+		else
+			std::cout << i << " ";
+		for(int cc = 0;cc < COLS;cc++)
+		{
+			char c = d.BoardElementsToChars(d.Board[rr][cc]);
+			std::cout<<"|_" << c;
+		}
+		std::cout<< "|" << std::endl;
+	}
+	
+	std::cout << "Cash: "<< d.cash << "  Lives: "<< d.lives << std::endl;
+	return os;
+}
+
+int DuGame::checkLives()
+{
+	if(lives == 0)
+	{
+		std::cout << "YOU SUCK!";
+		return 1;
+	}
+	else
+		return 0;
+}
+
+int DuGame::checkLevel()
+{
+	if(level == 5)
+		return 1;
+	else
+		return 0;
 }
