@@ -8,10 +8,10 @@ DuGame::DuGame(int numOfPlayers)
 		for(int cc = 0;cc < COLS; cc++)
 			Board[rr][cc] = bempty;
 
-	r1 = 1,	c1 = 1;
-	rb1 = 0, cb1 = 7;
+	rp1 = r1 = 1,	cp1 = c1 = 1;
+	PrevObj = bempty;
 	Board[r1][c1] = bplayer;
-	Board[rb1][cb1] = bboss;
+
 	cash = 0;
 	lives = 5;
 
@@ -31,33 +31,6 @@ DuGame::DuGame(int numOfPlayers)
 	Board[(ROWS/2)+2][COLS-1] = bgold;
 
 	Board[ROWS-1][COLS-1] = bexit;
-}
-
-void DuGame::printBoard()
-{
-	system("cls");
-	std::cout << "Look out for hidden traps!! Level: " << level << std::endl << "  ";
-	for(int i = 0;i < COLS;i++)
-			std::cout<<"  " << i;
-	std::cout<<std::endl<< "  ";
-	for(int top = 0;top < COLS;top++)
-			std::cout <<" __";
-	std::cout<<std::endl;
-	for (int rr = 0, i = 0;rr< ROWS; rr++, i++)
-	{
-		if(i<10)
-			std::cout << " "<< i << " ";
-		else
-			std::cout << i << " ";
-		for(int cc = 0;cc < COLS;cc++)
-		{
-			char c = BoardElementsToChars(Board[rr][cc]);
-			std::cout<<"|_" << c;
-		}
-		std::cout<< "|" << std::endl;
-	}
-	
-	std::cout << "Cash: "<< cash << "  Lives: "<<  lives << std::endl;
 }
 
 char DuGame::BoardElementsToChars(BoardElements b) const
@@ -91,57 +64,46 @@ char DuGame::BoardElementsToChars(BoardElements b) const
 
 void DuGame::startPlaying(char userMove)
 {
-		//clears previous move
-		Board[r1][c1] = bempty;
+	switch(userMove)
+	{
+		case 'w':
+			r1--;
+			break;
+		case 'a':
+			c1--;
+			break;
+		case 's':
+			r1++;
+			break;
+		case 'd':
+			c1++;
+			break;
+		default:
+			std::cout << "Enter the correct input" << std::endl;
+	}
+	if(level == 4)
+	{		
 		Board[rb1][cb1] = bempty;
-
 		switch(userMove)
 		{
 			case 'w':
-				r1--;
+				rb1++;
 				break;
 			case 'a':
-				c1--;
+				cb1+=2;
 				break;
 			case 's':
-				r1++;
+				rb1-=3;
 				break;
 			case 'd':
-				c1++;
+				cb1--;
 				break;
 			default:
 				std::cout << "Enter the correct input" << std::endl;
 		}
-		if(level == 4)
-		{
-			switch(userMove)
-			{
-				case 'w':
-					rb1++;
-					break;
-				case 'a':
-					cb1+=2;
-					break;
-				case 's':
-					rb1-=3;
-					break;
-				case 'd':
-					cb1--;
-					break;
-				default:
-					std::cout << "Enter the correct input" << std::endl;
-			}
-		
-	
-		
-		Board[r1][c1] = bplayer;
-		if(level == 4)
-			Board[rb1][cb1] = bboss;
-		
-
 	}
 }
-
+  
 void DuGame::checkOOB()
 {
 	if(r1 > (ROWS-1))
@@ -155,52 +117,58 @@ void DuGame::checkOOB()
 	else if(level == 4)
 	{
 		if(rb1 > (ROWS-1))
-			rb1 = (ROWS-2);
-		else if(cb1 > (COLS-2))
+			rb1 = (ROWS-1);
+		else if(cb1 > (COLS-1))
 			cb1 = (COLS - 1);
 		else if(rb1 < 0)
-			rb1 = 1;
+			rb1 = 0;
 		else if(cb1 < 0)
-			cb1 = 1;
+			cb1 = 0;
 	}
-	
 }
 
-void DuGame::updateBoard()
+int DuGame::updateBoard()
 {
 	if(Board[r1][c1] == bgold)
 	{
-		std::cout << "You've struck gold!" <<std::endl;
+		PrevObj = bgold;
 		cash++;
 	}
 	else if(Board[r1][c1] == btrap)
 	{
-		std::cout <<"You've hit a trap!!"<<std::endl;
+		PrevObj = btrap;
 		lives--;
-	}
-	else if(Board[r1][c1] == bexit)
-	{
-		std::cout<<"You have found the exit!!"<< std::endl;
-		std::cout << "Lives left: " << lives << std::endl;
-		std::cout << "Cash scored: " << cash << std::endl << std::endl;
-		level++;
 	}
 	else if(Board[r1][c1] == bboss)
 	{
-		std::cout <<"Ouch! the boss tagged you"<< std::endl;
+		PrevObj = bboss;
 		lives--;
 	}
-
-	if(Board[rb1][cb1] == bexit)
+	else
+		PrevObj = bempty;
+	if(level == 4)
 	{
-		Board[rb1][cb1] = bempty;
-		Board[rb1][cb1] = bexit;
-		rb1 = 0;
-		cb1 = 9;
-		std::cout << "The boss left!!"<< std::endl;
+		if(Board[rb1][cb1] == bexit)
+		{
+			Board[rb1][cb1] = bempty;
+			Board[rb1][cb1] = bexit;
+			rb1 = 0;
+			cb1 = 9;	
+		}
 	}
 	checkOOB();
+	if(Board[r1][c1] == bexit)
+	{
+		PrevObj = bexit;
+		level++;
+		return 1;
+	}
+	Board[rp1][cp1] = bempty;
 	Board[r1][c1] = bplayer;
+	if(level == 4)
+		Board[rb1][cb1] = bboss;
+
+	return 0;
 }
 
 void DuGame::nextLevel()
@@ -271,7 +239,11 @@ void DuGame::resetBoard()
 	c1 = 1;
 	Board[r1][c1]=bplayer;
 	if(level == 4)
+	{
+		rb1 = 1;
+		cb1 = 8;
 		Board[rb1][cb1]=bboss;
+	}
 	else
 		Board[ROWS-1][COLS-1] = bexit;
 
@@ -302,7 +274,7 @@ std::ostream & operator<<(std::ostream & os, const DuGame d)
 	}
 	
 	std::cout << "Cash: "<< d.cash << "  Lives: "<< d.lives << std::endl;
-
+	d.displayPlayerStatus();
 	return os;
 }
 
@@ -310,7 +282,7 @@ int DuGame::checkLives()
 {
 	if(lives == 0)
 	{
-		std::cout << "YOU SUCK!";
+		std::cout << "YOU SUCK!"<<std::endl;
 		return 1;
 	}
 	else
@@ -323,4 +295,30 @@ int DuGame::checkLevel()
 		return 1;
 	else
 		return 0;
+}
+
+int DuGame::checkForExit()
+{
+	if(Board[r1][c1] ==  bexit)
+		return 1;
+	else 
+		return 0;
+}
+
+void DuGame::displayPlayerStatus() const
+{
+	if(PrevObj == btrap)
+		std::cout << "You've hit a trap!!" << std::endl;
+	else if(PrevObj == bgold)
+		std::cout << "You've struck Gold!!" << std::endl;
+	else if(PrevObj == bexit)
+		std::cout << "You've found the exit" << std::endl;
+	else if(PrevObj == bboss)
+		std::cout << "The boss tagged you" << std::endl;
+}
+
+void DuGame::prevCoor()
+{
+	rp1 = r1;
+	cp1 = c1;
 }
