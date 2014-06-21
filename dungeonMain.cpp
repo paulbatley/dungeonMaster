@@ -3,6 +3,7 @@
 
 using std::cout;
 using std::endl;
+
 int main(void)
 {
 	cout << "Welcome to the dungeon crawl " << endl;
@@ -12,16 +13,20 @@ int main(void)
 	
 	while(true)
 	{
-		dg.updateBoard();
 		cout << dg;
-		
+
 		std::cout << "Choose your direction: (w,a,s,d)";
 		std::cin >> userMove;
+
+		dg.displayPlayerStatus();
+		dg.prevCoor();
 		dg.startPlaying(userMove);
-		if(dg.checkLives() == 1)
+		
+		if(dg.updateBoard())
+			dg.nextLevel();
+		if(dg.checkLives())
 			break;
-		dg.nextLevel();
-		if(dg.checkLevel() == 1)
+		if(dg.checkLevel())
 			break;
 	}
 	cout << "GAME OVER" << endl;
